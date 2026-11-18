@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import type { Issue, Status } from '../api'
+import { StringsContext, stringsFor } from '../i18n'
 import { statusSegments, SWITCH_STATUSES, WriteRow } from './write-row'
 
 const ISSUE: Issue = {
@@ -18,10 +19,12 @@ const ISSUE: Issue = {
   dependent_count: 0,
 }
 
-function render(status: Status): string {
+function render(status: Status, locale: 'en' | 'cs' = 'en'): string {
   const noop = () => {}
   return renderToStaticMarkup(
-    <WriteRow issue={{ ...ISSUE, status }} knownLabels={[]} onPriority={noop} onStatus={noop} onLabels={noop} />,
+    <StringsContext.Provider value={stringsFor(locale)}>
+      <WriteRow issue={{ ...ISSUE, status }} knownLabels={[]} onPriority={noop} onStatus={noop} onLabels={noop} />
+    </StringsContext.Provider>,
   )
 }
 
@@ -40,5 +43,13 @@ describe('status switch', () => {
     expect(statusSegments('open')).toEqual([...SWITCH_STATUSES])
     expect(statusSegments('blocked')).toEqual([...SWITCH_STATUSES, 'blocked'])
     expect(render('blocked')).toMatch(/class="on st-blocked" aria-pressed="true" disabled="">blocked</)
+  })
+
+  it('reads in czech', () => {
+    const html = render('deferred', 'cs')
+    expect(html).toContain('>odloženo</button>')
+    expect(html).toContain('>v řešení</button>')
+    expect(html).toContain('aria-label="stav"')
+    expect(html).toContain('placeholder="přidat label"')
   })
 })

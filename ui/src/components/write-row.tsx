@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import type { Issue, Status } from '../api'
-import { statusLabel } from '../format'
+import { useStrings } from '../i18n'
 
 interface WriteRowProps {
   issue: Issue
@@ -29,6 +29,7 @@ function validLabel(value: string): boolean {
 
 /** the second row of the detail header: everything writable except the note */
 export function WriteRow({ issue, knownLabels, onPriority, onStatus, onLabels }: WriteRowProps) {
+  const s = useStrings()
   const [draft, setDraft] = useState('')
   const suggestions = knownLabels.filter((l) => !issue.labels.includes(l))
 
@@ -41,23 +42,23 @@ export function WriteRow({ issue, knownLabels, onPriority, onStatus, onLabels }:
 
   return (
     <div className="writerow">
-      <div className="stepper" role="group" aria-label="priority">
-        <span className="lab">priority</span>
+      <div className="stepper" role="group" aria-label={s.write.priority}>
+        <span className="lab">{s.write.priority}</span>
         {PRIORITIES.map((p) => (
           <button
             key={p}
             className={p === issue.priority ? 'on' : ''}
             aria-pressed={p === issue.priority}
             onClick={() => onPriority(p)}
-            title={`set priority ${p}`}
+            title={s.write.setPriority(p)}
           >
             p{p}
           </button>
         ))}
       </div>
 
-      <div className="segments" role="group" aria-label="status">
-        <span className="lab">status</span>
+      <div className="segments" role="group" aria-label={s.write.status}>
+        <span className="lab">{s.write.status}</span>
         <span className="seg">
           {statusSegments(issue.status).map((status) => {
             const on = status === issue.status
@@ -71,7 +72,7 @@ export function WriteRow({ issue, knownLabels, onPriority, onStatus, onLabels }:
                   if (!on) onStatus(status)
                 }}
               >
-                {statusLabel(status)}
+                {s.status[status]}
               </button>
             )
           })}
@@ -79,14 +80,14 @@ export function WriteRow({ issue, knownLabels, onPriority, onStatus, onLabels }:
       </div>
 
       <div className="labeled">
-        <span className="lab">labels</span>
+        <span className="lab">{s.write.labels}</span>
         {issue.labels.map((label) => (
           <span className="chip" key={label}>
             {label}
             <button
               onClick={() => onLabels({ remove: [label] })}
-              title={`remove ${label}`}
-              aria-label={`remove ${label}`}
+              title={s.write.remove(label)}
+              aria-label={s.write.remove(label)}
             >
               &times;
             </button>
@@ -95,8 +96,8 @@ export function WriteRow({ issue, knownLabels, onPriority, onStatus, onLabels }:
         <input
           list="known-labels"
           value={draft}
-          placeholder="add label"
-          aria-label="add label"
+          placeholder={s.write.addLabel}
+          aria-label={s.write.addLabel}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -115,7 +116,7 @@ export function WriteRow({ issue, knownLabels, onPriority, onStatus, onLabels }:
           ))}
         </datalist>
         <button className="add" onClick={add} disabled={!validLabel(draft.trim())}>
-          add
+          {s.write.add}
         </button>
       </div>
     </div>
