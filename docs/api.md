@@ -129,6 +129,7 @@ interface TryItConfig { label: string; key: string; title: string; note: string 
 interface DerivedConfig { allFlags: string[]; hotChips: string[] }
 
 interface BoardConfig {
+  locale: 'en' | 'cs'         // ui copy and date format; en when unset
   human: { id: string; name: string } | null   // in /api/session always the identity in use
   agentsview: string | null
   notesDir: string | null

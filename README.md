@@ -179,6 +179,10 @@ The last two ask for a short note first. Every verdict is recorded under `try.la
 
 Any other label that is not a lane label, sub-label, or workflow flag automatically groups beads within a lane whenever 2 or more beads share it.
 
+### locale
+
+`"locale"` picks the interface language and date format: `"en"` or `"cs"`. Labels and section titles stay as written in the config. Optional, falls back to `"en"`.
+
 ### example configuration
 
 ### comment authors
@@ -331,7 +335,8 @@ An entry matches that name on any port, or only one port when written as `name:p
 
 ```bash
 pnpm run dev              # server on 1338 with tsx watch, vite ui on its own port proxying /api
-pnpm run mock             # mock api from scripts/demo for ui work without bd
+pnpm run mock             # mock api from scripts/demo for ui work without bd; BD_BOARD_DEMO_CONFIG=path swaps its config
+                          # vite proxies /api to 1338, or to BD_BOARD_API when set
 pnpm test                 # vitest test suite
 pnpm run typecheck        # tsc type checks across server and ui
 ```
