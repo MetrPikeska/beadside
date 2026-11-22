@@ -22,6 +22,7 @@ import { useCommentOrder } from '../use-comment-order'
 import { MarkdownText } from './markdown'
 import { WriteRow } from './write-row'
 import { NoteBox } from './note-box'
+import { StatusRoute } from './status-route'
 import { AskCard } from './ask-card'
 import { askOf } from '../asks'
 import { TryCard } from './try-card'
@@ -238,7 +239,9 @@ export function DetailPane(props: DetailPaneProps) {
   if (!issue) {
     return (
       <main className="read">
-        <div className="loading">{s.detail.none}</div>
+        <div className="sheet">
+          <div className="loading">{s.detail.none}</div>
+        </div>
       </main>
     )
   }
@@ -262,6 +265,8 @@ export function DetailPane(props: DetailPaneProps) {
 
   return (
     <main className="read" ref={readRef} style={axisStyle(axis, config) as CSSProperties}>
+      {/* the atlas theme lays the bead on a card over the map; elsewhere the sheet adds no box */}
+      <div className="sheet">
       <div className="rhead">
         <div className="rline">
           <button className="back" onClick={props.onBack} aria-label={s.detail.back}>
@@ -334,6 +339,8 @@ export function DetailPane(props: DetailPaneProps) {
               </span>
             ) : null}
           </div>
+
+          <StatusRoute issue={full} />
 
           {ask ? <AskCard key={full.id} ask={ask} short={short} config={config} onAnswer={props.onAnswer} /> : null}
           {check ? (
@@ -517,6 +524,7 @@ export function DetailPane(props: DetailPaneProps) {
         onSend={props.onSend}
         sending={props.sending}
       />
+      </div>
     </main>
   )
 }

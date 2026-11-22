@@ -118,12 +118,16 @@ export interface HumanConfig {
   name?: string | null
 }
 
+/** the default look: the warm ledger (light or dark) or atlas; each browser can pick another */
+export type Theme = 'default' | 'atlas'
 /** the interface language and date format */
 export type Locale = 'en' | 'cs'
 
+export const THEMES: readonly Theme[] = ['default', 'atlas']
 export const LOCALES: readonly Locale[] = ['en', 'cs']
 
 export interface BoardConfig {
+  theme?: Theme | null
   locale?: Locale | null
   human?: HumanConfig | null
   agentsview?: string | null
@@ -144,6 +148,7 @@ export interface BoardConfig {
 }
 
 export interface ResolvedBoardConfig {
+  theme: Theme
   locale: Locale
   /** null means main.ts falls back to `human:<git user.name>` */
   human: HumanIdentity | null
@@ -242,6 +247,7 @@ export function resolveConfig(raw: unknown): ResolvedBoardConfig {
   }
   const obj = raw as Record<string, unknown>
 
+  const theme = validateChoice(obj['theme'], 'theme', THEMES, 'default')
   const locale = validateChoice(obj['locale'], 'locale', LOCALES, 'en')
 
   let human: HumanIdentity | null = null
@@ -451,6 +457,7 @@ export function resolveConfig(raw: unknown): ResolvedBoardConfig {
   }
 
   return {
+    theme,
     locale,
     human,
     agentsview,

@@ -2,7 +2,8 @@
 // stay as written; everything the board writes itself goes through here
 
 import { createContext, useContext } from 'react'
-import type { Locale, SearchField, SearchScope, Status } from './api'
+import type { Locale, SearchField, SearchScope, Status, Theme } from './api'
+import type { ThemeMode } from './use-theme'
 import { formatDate, formatDateTime, formatShortDate, formatShortDateTime, relativeTime } from './format'
 import { EN_SECTIONS, type SectionStrings } from './model'
 import { EN_INBOX } from './inbox'
@@ -48,10 +49,16 @@ const en = {
 
   head: {
     read: (time: string) => `read ${time}`,
-    light: 'light',
-    dark: 'dark',
-    switchTheme: (to: string) => `switch to ${to} mode`,
-    switchFont: (to: string) => `switch body font to ${to}`,
+  },
+
+  look: {
+    button: 'look',
+    skin: 'theme',
+    skins: { default: 'ledger', atlas: 'atlas' } as Record<Theme, string>,
+    mode: 'mode',
+    modes: { system: 'system', light: 'light', dark: 'dark' } as Record<ThemeMode, string>,
+    font: 'font',
+    fixed: 'atlas is light only and brings its own type',
   },
 
   counts: {
@@ -165,7 +172,8 @@ const en = {
     defer: 'defer',
     closeBead: 'close',
     fold: 'fold, unfold',
-    theme: 'theme',
+    theme: 'light or dark',
+    skin: 'next theme',
     font: 'body font',
     help: 'this list',
     hintHelp: 'keys',
@@ -374,10 +382,16 @@ const cs: Strings = {
 
   head: {
     read: (time) => `načteno ${time}`,
-    light: 'světlý',
-    dark: 'tmavý',
-    switchTheme: (to) => `přepnout na ${to} režim`,
-    switchFont: (to) => `přepnout písmo na ${to}`,
+  },
+
+  look: {
+    button: 'vzhled',
+    skin: 'motiv',
+    skins: { default: 'ledger', atlas: 'atlas' },
+    mode: 'režim',
+    modes: { system: 'podle systému', light: 'světlý', dark: 'tmavý' },
+    font: 'písmo',
+    fixed: 'atlas je jen světlý a má vlastní písmo',
   },
 
   counts: {
@@ -516,6 +530,7 @@ const cs: Strings = {
     closeBead: 'uzavřít',
     fold: 'sbalit, rozbalit',
     theme: 'světlý a tmavý režim',
+    skin: 'další motiv',
     font: 'písmo',
     help: 'tento seznam',
     hintHelp: 'klávesy',

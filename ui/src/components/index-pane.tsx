@@ -7,13 +7,13 @@ import type { Board, BoardRow } from '../model'
 import { axisOf } from '../model'
 import type { Inbox } from '../inbox'
 import { axisStyle, formatTime, laneColor } from '../format'
-import type { BodyFont } from '../use-font'
-import type { Theme } from '../use-theme'
+import { LookMenu, fixedLook as isFixedLook, type LookProps } from './look-menu'
 import { SearchResults } from './search-results'
 import { InboxList, StaleList, TryList, type RowActions } from './inbox-list'
 import type { TryGroup } from '../tries'
 import { Row } from './row'
-import { KeyHelp } from './keys-help'
+import { KeyHelp, KeyHint, type KeyOptions } from './keys-help'
+import { Icon } from './icon'
 import { useStrings } from '../i18n'
 
 /** the inbox lands first; the board is the lanes, stale the board filtered to old open work */
@@ -32,10 +32,8 @@ interface IndexPaneProps {
   onCaptureSubmit: () => void
   fetchedAt: string | undefined
   search: SearchProps
-  theme: Theme
-  onToggleTheme: () => void
-  font: BodyFont
-  onToggleFont: () => void
+  /** theme, light or dark, and body font for the look menu */
+  look: LookProps
   /** the key list behind the `?` button */
   help: boolean
   onHelp: (open: boolean) => void
@@ -86,10 +84,7 @@ export function IndexPane(props: IndexPaneProps) {
     onCaptureSubmit,
     fetchedAt,
     search,
-    theme,
-    onToggleTheme,
-    font,
-    onToggleFont,
+    look,
     help,
     onHelp,
     view,
@@ -128,27 +123,24 @@ export function IndexPane(props: IndexPaneProps) {
 
   const { counts } = board
   const capturePlaceholder = s.capture(config.capture.labels)
-  const otherTheme = theme === 'dark' ? s.head.light : s.head.dark
+  // atlas fixes palette and type, so `f` focuses search like `s`
+  const fixedLook = isFixedLook(look.skin)
+  const keyOptions: KeyOptions = { tries: !!config.tryIt, fixedLook }
 
   return (
     <aside className="index">
       <div className="ihead">
         <div className="brand">
-          <b>{s.brand}</b>
+          <b>
+            {s.brand}
+            <i className="brand-dot" aria-hidden="true">
+              .
+            </i>
+          </b>
           <span>{repoName}</span>
           {fetchedAt ? <span className="stale">{s.head.read(formatTime(fetchedAt))}</span> : null}
-          <button className="theme" onClick={onToggleTheme} aria-label={s.head.switchTheme(otherTheme)} title="t">
-            {otherTheme}
-          </button>
-          <button
-            className="theme fontpick"
-            onClick={onToggleFont}
-            aria-label={s.head.switchFont(font === 'ubuntu' ? 'figtree' : 'ubuntu')}
-            title="f"
-          >
-            {font === 'ubuntu' ? 'figtree' : 'ubuntu'}
-          </button>
-          <KeyHelp open={help} onOpen={onHelp} options={{ tries: !!config.tryIt, fixedLook: false }} />
+          <LookMenu {...look} />
+          <KeyHelp open={help} onOpen={onHelp} options={keyOptions} />
         </div>
         <div className="counts">
           <em>{counts.open}</em> {s.counts.open}
@@ -202,13 +194,14 @@ export function IndexPane(props: IndexPaneProps) {
         </div>
 
         <div className="search">
+          <Icon name="search" />
           <input
             ref={search.ref}
             value={search.value}
             type="search"
             aria-label={s.search.label}
             placeholder={s.search.placeholder}
-            title={s.search.title('s')}
+            title={s.search.title(fixedLook ? 's, f' : 's')}
             onChange={(e) => {
               if (!searching && e.target.value.trim() && listRef.current) boardScroll.current = listRef.current.scrollTop
               search.onChange(e.target.value)
@@ -251,6 +244,7 @@ export function IndexPane(props: IndexPaneProps) {
       </div>
 
       <div className="capture" hidden={searching}>
+        <Icon name="plus" />
         <input
           ref={captureRef}
           value={captureValue}
@@ -296,6 +290,7 @@ export function IndexPane(props: IndexPaneProps) {
                 aria-expanded={!section.folded}
                 onClick={() => onToggleSection(section.key)}
               >
+                <Icon name="chevron" className="fold" />
                 <span style={color ? { color } : undefined}>{section.title}</span>
                 <span className="n">{section.count}</span>
                 {section.note ? <span className="note">{section.note}</span> : null}
@@ -355,6 +350,7 @@ export function IndexPane(props: IndexPaneProps) {
         })}
       </div>
 
+      <KeyHint open={help} onOpen={onHelp} options={keyOptions} />
     </aside>
   )
 }

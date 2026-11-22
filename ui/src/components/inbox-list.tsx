@@ -10,6 +10,7 @@ import { axisOf } from '../model'
 import { axisStyle } from '../format'
 import { lastLine, raisedLine, tryFacts, useStrings, type Strings } from '../i18n'
 import { Row } from './row'
+import { Icon } from './icon'
 
 /** the one-click verdicts the inbox and the stale filter offer */
 export interface RowActions {
@@ -244,6 +245,7 @@ export function InboxList(
             aria-expanded={!section.folded}
             onClick={() => props.onToggleSection(inboxFoldKey(section.key))}
           >
+            <Icon name="chevron" className="fold" />
             <span>{section.title}</span>
             <span className="n">
               {

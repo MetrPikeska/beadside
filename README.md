@@ -179,9 +179,13 @@ The last two ask for a short note first. Every verdict is recorded under `try.la
 
 Any other label that is not a lane label, sub-label, or workflow flag automatically groups beads within a lane whenever 2 or more beads share it.
 
-### locale
+### theme and locale
 
-`"locale"` picks the interface language and date format: `"en"` or `"cs"`. Labels and section titles stay as written in the config. Optional, falls back to `"en"`.
+`"theme"` sets the default look: `"default"` (the warm ledger, light or dark) or `"atlas"` (a navy index over a street-map ground, the bead on a white card, Rubik and JetBrains Mono bundled, light only). Each browser can pick another look in the `look` menu at the top of the index, and that pick wins over the config (`beadside:skin`). The same menu holds light, dark or system and the body font.
+
+`"locale"` picks the interface language and date format: `"en"` or `"cs"`. Labels and section titles stay as written in the config.
+
+Both are optional and fall back to `"default"` and `"en"`.
 
 ### example configuration
 
@@ -361,5 +365,8 @@ pnpm run typecheck        # tsc type checks across server and ui
 - `s`: focus search; in the box `Up` / `Down` step through hits, `Enter` opens the hit and returns the keys to the list, `Esc` clears and puts the board back where it was
 - `/`: focus quick capture
 - `t`: switch between light and dark; the board starts in whichever your system prefers and remembers the switch
+- `T`: step to the next theme (ledger, atlas); the choice is remembered per browser
 - `f`: switch the body font between Figtree and Ubuntu; the choice is remembered per browser (`beadside:font`), and labels and code stay in JetBrains Mono
 - `?`: show or hide this list; the `?` button at the top of the index opens it too
+
+In atlas the palette and body font are fixed, so `f` focuses search like `s`, `t` does nothing, and a one-line hint at the foot of the index names the common keys.

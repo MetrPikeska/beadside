@@ -6,7 +6,7 @@ import { useStrings, type KeyRow, type Strings } from '../i18n'
 export interface KeyOptions {
   /** the ready-to-try view is on, so `r` switches to it */
   tries: boolean
-  /** the body font is fixed by the theme: `f` focuses search and `t` does nothing */
+  /** atlas fixes palette and body font: `f` focuses search and `t` does nothing */
   fixedLook: boolean
 }
 
@@ -32,6 +32,7 @@ export function keyRows(s: Strings, options: KeyOptions): KeyRow[] {
           { keys: ['t'], what: k.theme },
           { keys: ['f'], what: k.font },
         ]),
+    { keys: ['T'], what: k.skin },
     { keys: ['?'], what: k.help },
   ]
 }
@@ -83,5 +84,36 @@ export function KeyHelp({
         </div>
       ) : null}
     </span>
+  )
+}
+
+/**
+ * the one-line hint at the foot of the index: the keys used most, then the whole list behind `?`.
+ * the atlas theme shows it; the default theme keeps only the `?` button in the brand row
+ */
+export function KeyHint({ open, onOpen, options }: { open: boolean; onOpen: (open: boolean) => void; options: KeyOptions }) {
+  const s = useStrings()
+  return (
+    <div className="hint">
+      <span>
+        <kbd>j</kbd>
+        <kbd>k</kbd> {s.keys.move}
+      </span>
+      <span>
+        <kbd>{options.fixedLook ? 'f' : 's'}</kbd> {s.keys.search}
+      </span>
+      <span>
+        <kbd>/</kbd> {s.keys.capture}
+      </span>
+      <button
+        className={open ? 'keysbtn on' : 'keysbtn'}
+        aria-expanded={open}
+        // the list opens from the brand row; this only toggles it, so a click here must not count as outside
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={() => onOpen(!open)}
+      >
+        <kbd>?</kbd> {s.keys.hintHelp}
+      </button>
+    </div>
   )
 }

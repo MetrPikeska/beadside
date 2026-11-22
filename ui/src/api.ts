@@ -180,10 +180,14 @@ export interface DerivedConfig {
   hotChips: string[]
 }
 
+/** the default look; each browser can pick another in the look menu */
+export type Theme = 'default' | 'atlas'
 /** the interface language and date format */
 export type Locale = 'en' | 'cs'
 
 export interface BoardConfig {
+  /** absent from a server older than themes: the default look */
+  theme?: Theme
   /** absent from a server older than locales: english */
   locale?: Locale
   /** the configured human, or null when the server derived one from git */

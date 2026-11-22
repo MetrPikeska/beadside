@@ -21,6 +21,8 @@ import { useInboxMemory } from './use-inbox-memory'
 import { readyToTry, type Verdict } from './tries'
 import { StringsContext, stringsFor } from './i18n'
 import { useLocale } from './use-locale'
+import { useSkin } from './use-skin'
+import { fixedLook as isFixedLook, type LookProps } from './components/look-menu'
 
 const EMPTY_CONFIG: BoardConfig = {
   agentsview: null,
@@ -89,8 +91,8 @@ export function App() {
   const captureRef = useRef<HTMLInputElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
   const narrow = useNarrow()
-  const { theme, toggle: toggleTheme } = useTheme()
-  const { font, toggle: toggleFont } = useFont()
+  const { mode: themeMode, toggle: toggleTheme, setMode: setThemeMode } = useTheme()
+  const { font, toggle: toggleFont, setFont } = useFont()
   // phone only: the open bead covers the list; its own history entry, so back returns to the list
   const [reading, setReading] = useState(() => isReadingState(window.history.state))
 
@@ -144,6 +146,15 @@ export function App() {
   const config = session?.config ?? EMPTY_CONFIG
   const humanName = session?.human.name ?? s.detail.youLower
   const issues = issuesQuery.data?.issues
+
+  // the config's theme is the default look; a pick in the look menu wins
+  const { skin, setSkin, cycle: cycleSkin } = useSkin(session ? (config.theme ?? 'default') : null)
+  // atlas fixes palette and type: no light/dark switch, no body font switch
+  const fixedLook = isFixedLook(skin)
+  const look: LookProps = useMemo(
+    () => ({ skin, onSkin: setSkin, mode: themeMode, onMode: setThemeMode, font, onFont: setFont }),
+    [skin, setSkin, themeMode, setThemeMode, font, setFont],
+  )
 
   const board = useMemo(
     () =>
@@ -708,7 +719,7 @@ export function App() {
     if (hits.length) searchRef.current?.blur()
   }, [searchResult, selected, pickHit])
 
-  // keyboard: movement, folds, the note box, copy, defer and close, search, quick capture, theme, body font
+  // keyboard: movement, folds, the note box, copy, defer and close, search, quick capture, theme, look, body font
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null
@@ -733,7 +744,7 @@ export function App() {
       } else if (!searching && (e.key === 'i' || e.key === 'b' || e.key === 'o' || (e.key === 'r' && config.tryIt))) {
         e.preventDefault()
         changeView(e.key === 'i' ? 'inbox' : e.key === 'b' ? 'board' : e.key === 'o' ? 'stale' : 'tries')
-      } else if (e.key === 's') {
+      } else if (e.key === 's' || (e.key === 'f' && fixedLook)) {
         e.preventDefault()
         searchRef.current?.focus()
         searchRef.current?.select()
@@ -779,7 +790,10 @@ export function App() {
         captureRef.current?.focus()
       } else if (e.key === 't') {
         e.preventDefault()
-        toggleTheme()
+        if (!fixedLook) toggleTheme()
+      } else if (e.key === 'T') {
+        e.preventDefault()
+        cycleSkin()
       } else if (e.key === 'f') {
         e.preventDefault()
         toggleFont()
@@ -787,7 +801,7 @@ export function App() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [board, inbox, nav, view, changeView, selected, select, setFolded, onCopyId, onStatus, searching, moveHit, clearSearch, toggleTheme, toggleFont, config])
+  }, [board, inbox, nav, view, changeView, selected, select, setFolded, onCopyId, onStatus, searching, moveHit, clearSearch, toggleTheme, cycleSkin, toggleFont, config, fixedLook])
 
   if (sessionQuery.isError || issuesQuery.isError) {
     const error = sessionQuery.error ?? issuesQuery.error
@@ -818,10 +832,7 @@ export function App() {
           onCaptureChange={setCapture}
           onCaptureSubmit={onCaptureSubmit}
           fetchedAt={issuesQuery.data?.fetchedAt}
-          theme={theme}
-          onToggleTheme={toggleTheme}
-          font={font}
-          onToggleFont={toggleFont}
+          look={look}
           help={help}
           onHelp={setHelp}
           view={view}

@@ -94,6 +94,7 @@ describe('human identity config', () => {
 describe('resolveConfig defaults', () => {
   it('returns all defaults when given empty object or null', () => {
     const config = resolveConfig({})
+    expect(config.theme).toBe('default')
     expect(config.locale).toBe('en')
     expect(config.human).toBeNull()
     expect(config.agentsview).toBeNull()
@@ -109,6 +110,11 @@ describe('resolveConfig defaults', () => {
     expect(config.capture).toEqual({ labels: [] })
     expect(config.derived.allFlags).toEqual([])
     expect(config.derived.hotChips).toEqual([])
+  })
+
+  it('passes a chosen theme through', () => {
+    expect(resolveConfig({ theme: 'atlas' }).theme).toBe('atlas')
+    expect(resolveConfig({ theme: null }).theme).toBe('default')
   })
 
   it('passes a chosen locale through', () => {
@@ -217,6 +223,11 @@ describe('validation errors', () => {
     expect(() => resolveConfig({ thoughts: { label: 'with space' } })).toThrowError(
       /thoughts\.label/,
     )
+  })
+
+  it('rejects an unknown theme and names the field', () => {
+    expect(() => resolveConfig({ theme: 'neon' })).toThrowError(/theme must be one of default, atlas/)
+    expect(() => resolveConfig({ theme: 3 })).toThrowError(ConfigError)
   })
 
   it('rejects an unknown locale and names the field', () => {
