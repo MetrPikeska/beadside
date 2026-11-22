@@ -20,6 +20,7 @@ import { useTheme } from './use-theme'
 import { useInboxMemory } from './use-inbox-memory'
 import { readyToTry, type Verdict } from './tries'
 import { StringsContext, stringsFor } from './i18n'
+import { useLocale } from './use-locale'
 
 const EMPTY_CONFIG: BoardConfig = {
   agentsview: null,
@@ -73,7 +74,8 @@ export function App() {
     queryFn: api.getSession,
     staleTime: Infinity,
   })
-  const s = stringsFor(sessionQuery.data?.config.locale)
+  // a session without a locale (an older server) is english; no session yet keeps the remembered one
+  const s = stringsFor(useLocale(sessionQuery.data ? (sessionQuery.data.config.locale ?? 'en') : null))
   const toaster = useToast(s.toast)
   const folds = useFolds()
   const { setFolded } = folds
@@ -142,11 +144,6 @@ export function App() {
   const config = session?.config ?? EMPTY_CONFIG
   const humanName = session?.human.name ?? s.detail.youLower
   const issues = issuesQuery.data?.issues
-
-  // the language lives on <html> so the browser hyphenates, spells and reads aloud in it
-  useEffect(() => {
-    document.documentElement.lang = s.locale
-  }, [s.locale])
 
   const board = useMemo(
     () =>
